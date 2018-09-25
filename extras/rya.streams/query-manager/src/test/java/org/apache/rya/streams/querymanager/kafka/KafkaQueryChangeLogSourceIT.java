@@ -79,13 +79,13 @@ public class KafkaQueryChangeLogSourceIT {
 
         try {
             // Start the source.
-            source.startAndWait();
+            source.startAsync().awaitRunning();
 
             // If the latch isn't counted down, then fail the test.
             assertTrue( created.await(5, TimeUnit.SECONDS) );
 
         } finally {
-            source.stopAndWait();
+            source.stopAsync().awaitTerminated();
         }
     }
 
@@ -113,7 +113,7 @@ public class KafkaQueryChangeLogSourceIT {
 
         try {
             // Start the source.
-            source.startAndWait();
+            source.startAsync().awaitRunning();
 
             // Wait twice the polling duration to ensure it iterates at least once.
             Thread.sleep(200);
@@ -125,7 +125,7 @@ public class KafkaQueryChangeLogSourceIT {
             // If the latch isn't counted down, then fail the test.
             assertTrue( created.await(5, TimeUnit.SECONDS) );
         } finally {
-            source.stopAndWait();
+            source.stopAsync().awaitTerminated();
         }
     }
 
@@ -161,7 +161,7 @@ public class KafkaQueryChangeLogSourceIT {
 
         try {
             // Start the source
-            source.startAndWait();
+            source.startAsync().awaitRunning();
 
             // Wait for it to indicate the topic was created.
             assertTrue( created.await(5, TimeUnit.SECONDS) );
@@ -173,7 +173,7 @@ public class KafkaQueryChangeLogSourceIT {
             assertTrue( deleted.await(5, TimeUnit.SECONDS) );
 
         } finally {
-            source.stopAndWait();
+            source.stopAsync().awaitTerminated();
         }
     }
 
@@ -205,7 +205,7 @@ public class KafkaQueryChangeLogSourceIT {
 
         try {
             // Start the source
-            source.startAndWait();
+            source.startAsync().awaitRunning();
 
             // Wait for that first listener to indicate the topic was created. This means that one has been cached.
             assertTrue( created.await(5, TimeUnit.SECONDS) );
@@ -226,7 +226,7 @@ public class KafkaQueryChangeLogSourceIT {
             assertTrue( newListenerCreated.await(5, TimeUnit.SECONDS) );
 
         } finally {
-            source.stopAndWait();
+            source.stopAsync().awaitTerminated();
         }
     }
 
@@ -240,7 +240,7 @@ public class KafkaQueryChangeLogSourceIT {
 
         try {
             // Start the source.
-            source.startAndWait();
+            source.startAsync().awaitRunning();
 
             // Create a listener that flips a boolean to true when it is notified.
             final AtomicBoolean notified = new AtomicBoolean(false);
@@ -271,7 +271,7 @@ public class KafkaQueryChangeLogSourceIT {
             // Show the boolean was never flipped to true.
             assertFalse(notified.get());
         } finally {
-            source.stopAndWait();
+            source.stopAsync().awaitTerminated();
         }
     }
 }

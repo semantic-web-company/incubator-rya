@@ -83,7 +83,7 @@ public class InMemoryQueryRepositoryTest {
         final QueryChangeLog changeLog = new InMemoryQueryChangeLog();
         final QueryRepository queries = new InMemoryQueryRepository( changeLog, SCHEDULE );
         try {
-            queries.startAndWait();
+            queries.startAsync().awaitRunning();
             // Add some queries and deletes to it.
             final Set<StreamsQuery> expected = new HashSet<>();
             expected.add( queries.add("query 1", true, true) );
@@ -98,10 +98,10 @@ public class InMemoryQueryRepositoryTest {
                 final Set<StreamsQuery> stored = initializedQueries.list();
                 assertEquals(expected, stored);
             } finally {
-                queries.stop();
+                queries.stopAsync();
             }
         } finally {
-            queries.stop();
+            queries.stopAsync();
         }
     }
 
@@ -160,7 +160,7 @@ public class InMemoryQueryRepositoryTest {
         // Setup a totally in memory QueryRepository.
         final QueryRepository queries = new InMemoryQueryRepository( new InMemoryQueryChangeLog(), SCHEDULE );
         try {
-            queries.startAndWait();
+            queries.startAsync().awaitRunning();
 
             // Add a query to it.
             final StreamsQuery query = queries.add("query 1", true, false);
@@ -179,7 +179,7 @@ public class InMemoryQueryRepositoryTest {
 
             queries.add("query 2", true, false);
         } finally {
-            queries.stop();
+            queries.stopAsync();
         }
     }
 
@@ -191,8 +191,8 @@ public class InMemoryQueryRepositoryTest {
         final QueryRepository queries2 = new InMemoryQueryRepository( changeLog, SCHEDULE );
 
         try {
-            queries.startAndWait();
-            queries2.startAndWait();
+            queries.startAsync().awaitRunning();
+            queries2.startAsync().awaitRunning();
 
             //show listener on repo that query was added to is being notified of the new query.
             final CountDownLatch repo1Latch = new CountDownLatch(1);
@@ -226,8 +226,8 @@ public class InMemoryQueryRepositoryTest {
             assertTrue(repo2Latch.await(5, TimeUnit.SECONDS));
         } catch(final InterruptedException e ) {
         } finally {
-            queries.stop();
-            queries2.stop();
+            queries.stopAsync();
+            queries2.stopAsync();
         }
     }
 

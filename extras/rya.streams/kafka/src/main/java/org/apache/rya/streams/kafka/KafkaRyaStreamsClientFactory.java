@@ -111,7 +111,7 @@ public final class KafkaRyaStreamsClientFactory {
             @Override
             public void close() {
                 try {
-                    queryRepo.stopAndWait();
+                    queryRepo.stopAsync().awaitTerminated();
                 } catch (final Exception e) {
                     log.warn("Couldn't close a QueryRepository.", e);
                 }
