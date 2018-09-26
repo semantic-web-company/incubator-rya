@@ -99,7 +99,7 @@ public class RunQueryCommandIT {
 
     @After
     public void cleanup() throws Exception {
-        queryRepo.stopAndWait();
+        queryRepo.stopAsync().awaitTerminated();
         stmtProducer.close();
         resultConsumer.close();
     }

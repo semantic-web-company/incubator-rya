@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.util.concurrent.Service;
 import org.apache.rya.streams.api.entity.StreamsQuery;
 import org.apache.rya.streams.api.queries.InMemoryQueryChangeLog;
 import org.apache.rya.streams.api.queries.QueryChange;
@@ -40,6 +41,15 @@ import org.junit.Test;
  * Unit tests the methods of {@link QueryManager}.
  */
 public class QueryManagerTest {
+
+    private static <T extends Service> T mockService(Class<T> serviceToMock)
+    {
+        T mockedService = mock(serviceToMock);
+        when(mockedService.startAsync()).thenReturn(mockedService);
+        when(mockedService.stopAsync()).thenReturn(mockedService);
+
+        return mockedService;
+    }
 
     /**
      * Tests when the query manager is notified to create a new query, the query
@@ -54,15 +64,18 @@ public class QueryManagerTest {
 
         // when the query executor is told to start the test query on the test
         // rya instance, count down on the countdown latch
-        final QueryExecutor qe = mock(QueryExecutor.class);
+        final QueryExecutor qe = mockService(QueryExecutor.class);
+
         when(qe.isRunning()).thenReturn(true);
+
+        qe.startAsync().awaitRunning();
 
         final CountDownLatch queryStarted = new CountDownLatch(1);
         doAnswer(invocation -> {
             queryStarted.countDown();
             return null;
         }).when(qe).startQuery(eq(ryaInstance), eq(query));
-        final QueryChangeLogSource source = mock(QueryChangeLogSource.class);
+        final QueryChangeLogSource source = mockService(QueryChangeLogSource.class);
 
         //When the QueryChangeLogSource is subscribed to in the QueryManager, mock notify of a new QueryChangeLog
         doAnswer(invocation -> {
@@ -75,11 +88,11 @@ public class QueryManagerTest {
 
         final QueryManager qm = new QueryManager(qe, source, 50, TimeUnit.MILLISECONDS);
         try {
-            qm.startAndWait();
+            qm.startAsync().awaitRunning();
             queryStarted.await(5, TimeUnit.SECONDS);
             verify(qe).startQuery(ryaInstance, query);
         } finally {
-            qm.stopAndWait();
+            qm.stopAsync().awaitTerminated();
         }
     }
 
@@ -96,7 +109,7 @@ public class QueryManagerTest {
 
         // when the query executor is told to start the test query on the test
         // rya instance, count down on the countdown latch
-        final QueryExecutor qe = mock(QueryExecutor.class);
+        final QueryExecutor qe = mockService(QueryExecutor.class);
         when(qe.isRunning()).thenReturn(true);
 
         final CountDownLatch queryStarted = new CountDownLatch(1);
@@ -105,7 +118,7 @@ public class QueryManagerTest {
             queryDeleted.countDown();
             return null;
         }).when(qe).stopQuery(query.getQueryId());
-        final QueryChangeLogSource source = mock(QueryChangeLogSource.class);
+        final QueryChangeLogSource source = mockService(QueryChangeLogSource.class);
 
         // when the query executor is told to start the test query on the test
         // rya instance, count down on the countdown latch
@@ -129,11 +142,11 @@ public class QueryManagerTest {
 
         final QueryManager qm = new QueryManager(qe, source, 50, TimeUnit.MILLISECONDS);
         try {
-            qm.startAndWait();
+            qm.startAsync().awaitRunning();
             queryDeleted.await(5, TimeUnit.SECONDS);
             verify(qe).stopQuery(query.getQueryId());
         } finally {
-            qm.stopAndWait();
+            qm.stopAsync().awaitTerminated();
         }
     }
 
@@ -150,7 +163,7 @@ public class QueryManagerTest {
 
         // when the query executor is told to start the test query on the test
         // rya instance, count down on the countdown latch
-        final QueryExecutor qe = mock(QueryExecutor.class);
+        final QueryExecutor qe = mockService(QueryExecutor.class);
         when(qe.isRunning()).thenReturn(true);
 
         final CountDownLatch queryStarted = new CountDownLatch(1);
@@ -159,7 +172,7 @@ public class QueryManagerTest {
             queryDeleted.countDown();
             return null;
         }).when(qe).stopQuery(query.getQueryId());
-        final QueryChangeLogSource source = mock(QueryChangeLogSource.class);
+        final QueryChangeLogSource source = mockService(QueryChangeLogSource.class);
 
         // when the query executor is told to start the test query on the test
         // rya instance, count down on the countdown latch
@@ -184,11 +197,11 @@ public class QueryManagerTest {
 
         final QueryManager qm = new QueryManager(qe, source, 50, TimeUnit.MILLISECONDS);
         try {
-            qm.startAndWait();
+            qm.startAsync().awaitRunning();
             queryDeleted.await(10, TimeUnit.SECONDS);
             verify(qe).stopQuery(query.getQueryId());
         } finally {
-            qm.stopAndWait();
+            qm.stopAsync().awaitTerminated();
         }
     }
 }

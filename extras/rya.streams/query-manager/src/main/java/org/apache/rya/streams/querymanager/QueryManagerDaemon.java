@@ -122,13 +122,13 @@ public class QueryManagerDaemon implements Daemon {
     @Override
     public void start() throws Exception {
         log.info("Starting the Rya Streams Query Manager Daemon.");
-        manager.startAndWait();
+        manager.startAsync().awaitRunning();
     }
 
     @Override
     public void stop() throws Exception {
         log.info("Stopping the Rya Streams Query Manager Daemon.");
-        manager.stopAndWait();
+        manager.startAsync().awaitRunning();
     }
 
     @Override

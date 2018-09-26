@@ -139,10 +139,10 @@ public class QueryManager extends AbstractService {
             executor.submit(new QueryEventWorker(queryEvents, queryExecutor, blockingValue, blockingUnits, shutdownSignal));
 
             // Start up the query execution framework.
-            queryExecutor.startAndWait();
+            queryExecutor.startAsync().awaitRunning();
 
             // Startup the source that discovers new Query Change Logs.
-            changeLogSource.startAndWait();
+            changeLogSource.startAsync().awaitRunning();
 
             // Subscribe the source a listener that writes to the LogEventWorker's work queue.
             changeLogSource.subscribe(new LogEventWorkGenerator(logEvents, blockingValue, blockingUnits, shutdownSignal));
@@ -176,14 +176,14 @@ public class QueryManager extends AbstractService {
 
         // Stop the source of new Change Logs.
         try {
-            changeLogSource.stopAndWait();
+            changeLogSource.stopAsync().awaitTerminated();
         } catch(final UncheckedExecutionException e) {
             log.warn("Could not stop the Change Log Source.", e);
         }
 
         // Stop the query execution framework.
         try {
-            queryExecutor.stopAndWait();
+            queryExecutor.stopAsync().awaitTerminated();
         } catch(final UncheckedExecutionException e) {
             log.warn("Could not stop the Query Executor", e);
         }
@@ -303,7 +303,7 @@ public class QueryManager extends AbstractService {
          * {@link QueryChangeLogSource}.
          *
          * @param ryaInstance - The Rya Instance the created log is for. (not null)
-         * @param log - The created {@link QueryChangeLog. (not null)
+         * @param log - The created {@link QueryChangeLog}. (not null)
          * @return A {@link LogEvent} built using the provided values.
          */
         public static LogEvent create(final String ryaInstance, final QueryChangeLog log) {
@@ -499,7 +499,7 @@ public class QueryManager extends AbstractService {
         private final TimeUnit offerUnits;
 
         /**
-         * Constructs an instance of {@link QueryManagerSourceListener}.
+         * Constructs an instance of {@link LogEventWorkGenerator}.
          *
          * @param workQueue - A blocking queue that will have {@link LogEvent}s offered to it. (not null)
          * @param offerValue - How long to wait when offering new work.
@@ -548,7 +548,7 @@ public class QueryManager extends AbstractService {
      * <p/>
      * Whenever a new log has been created, then it registers a {@link QueryEventWorkGenerator}
      * that generates {@link QueryEvent}s based on the content and updates to the discovered
-     * {@link QueryChagneLog}.
+     * {@link QueryChangeLog}.
      * <p/>
      * Whenever a log is deleted, then the generator is stopped and a stop all {@link QueryEvent}
      * is written to the work queue.
@@ -620,7 +620,7 @@ public class QueryManager extends AbstractService {
                             // so that it may be shutdown later.
                             final Scheduler scheduler = Scheduler.newFixedRateSchedule(0, blockingValue, blockingUnits);
                             final QueryRepository repo = new InMemoryQueryRepository(logEvent.getQueryChangeLog().get(), scheduler);
-                            repo.startAndWait();
+                            repo.startAsync().awaitRunning();
                             repos.put(ryaInstance, repo);
 
                             // Subscribe a worker that adds the Query Events to the queryWorkQueue queue.
@@ -659,7 +659,7 @@ public class QueryManager extends AbstractService {
                                 // Shut down the query repository for the Rya instance. This ensures the listener will
                                 // not receive any more work that needs to be done.
                                 final QueryRepository deletedRepo = repos.remove(ryaInstance);
-                                deletedRepo.stopAndWait();
+                                deletedRepo.stopAsync().awaitTerminated();
 
                                 // Add work that stops all of the queries related to the instance.
                                 final QueryEvent stopAllEvent = QueryEvent.stopALL(ryaInstance);
@@ -675,7 +675,7 @@ public class QueryManager extends AbstractService {
             log.info("LogEventWorker shutting down...");
 
             // Shutdown all of the QueryRepositories that were started.
-            repos.values().forEach(repo -> repo.stopAndWait());
+            repos.values().forEach(repo -> repo.stopAsync().awaitTerminated());
 
             log.info("LogEventWorker shut down.");
         }

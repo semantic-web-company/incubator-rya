@@ -124,7 +124,7 @@ public class LocalQueryExecutorIT {
         final String kafkaServers = kafka.getKafkaHostname() + ":" + kafka.getKafkaPort();
         final KafkaStreamsFactory jobFactory = new SingleThreadKafkaStreamsFactory(kafkaServers);
         final QueryExecutor executor = new LocalQueryExecutor(createKafkaTopic, jobFactory);
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Start the query.
             executor.startQuery(ryaInstance, sQuery);
@@ -144,7 +144,7 @@ public class LocalQueryExecutorIT {
             assertEquals(expected, results);
 
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 }

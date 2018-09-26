@@ -62,7 +62,7 @@ public class LocalQueryExecutorTest {
 
         // Start the executor that will be tested.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), jobFactory);
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Tell the executor to start the query.
             executor.startQuery(ryaInstance, query);
@@ -70,7 +70,7 @@ public class LocalQueryExecutorTest {
             // Show a job was started for that query's ID.
             verify(queryJob).start();
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 
@@ -84,12 +84,12 @@ public class LocalQueryExecutorTest {
     public void stopQuery_queryNotRunning() throws Exception {
         // Start an executor.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), mock(KafkaStreamsFactory.class));
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Try to stop a query that was never stareted.
             executor.stopQuery(UUID.randomUUID());
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 
@@ -106,7 +106,7 @@ public class LocalQueryExecutorTest {
 
         // Start the executor that will be tested.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), jobFactory);
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Tell the executor to start the query.
             executor.startQuery(ryaInstance, query);
@@ -117,7 +117,7 @@ public class LocalQueryExecutorTest {
             // Show a job was stopped for that query's ID.
             verify(queryJob).close();
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 
@@ -143,7 +143,7 @@ public class LocalQueryExecutorTest {
 
         // Start the executor that will be tested.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), jobFactory);
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Tell the executor to start the queries.
             executor.startQuery(ryaInstance, query1);
@@ -161,7 +161,7 @@ public class LocalQueryExecutorTest {
             verify(queryJob2, never()).close();
 
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 
@@ -182,7 +182,7 @@ public class LocalQueryExecutorTest {
 
         // Start the executor that will be tested.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), jobFactory);
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Tell the executor to start the queries.
             executor.startQuery(ryaInstance1, query1);
@@ -200,7 +200,7 @@ public class LocalQueryExecutorTest {
             verify(queryJob2).close();
 
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 
@@ -214,7 +214,7 @@ public class LocalQueryExecutorTest {
     public void getRunningQueryIds_noneStarted() throws Exception {
         // Start an executor.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), mock(KafkaStreamsFactory.class));
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Get the list of running queries.
             final Set<UUID> runningQueries = executor.getRunningQueryIds();
@@ -222,7 +222,7 @@ public class LocalQueryExecutorTest {
             // Show no queries are reported as running.
             assertTrue(runningQueries.isEmpty());
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 
@@ -242,7 +242,7 @@ public class LocalQueryExecutorTest {
 
         // Start the executor that will be tested.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), jobFactory);
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Start the queries.
             executor.startQuery(ryaInstance, query1);
@@ -257,7 +257,7 @@ public class LocalQueryExecutorTest {
             assertEquals(expected, executor.getRunningQueryIds());
 
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 
@@ -277,7 +277,7 @@ public class LocalQueryExecutorTest {
 
         // Start the executor that will be tested.
         final QueryExecutor executor = new LocalQueryExecutor(mock(CreateKafkaTopic.class), jobFactory);
-        executor.startAndWait();
+        executor.startAsync().awaitRunning();
         try {
             // Start the queries.
             executor.startQuery(ryaInstance, query1);
@@ -294,7 +294,7 @@ public class LocalQueryExecutorTest {
             assertEquals(expected, executor.getRunningQueryIds());
 
         } finally {
-            executor.stopAndWait();
+            executor.stopAsync().awaitTerminated();
         }
     }
 }
