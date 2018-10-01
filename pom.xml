@@ -71,7 +71,7 @@ under the License.
     <properties>
         <org.eclipse.rdf4j.version>2.3.1</org.eclipse.rdf4j.version> <!-- Newest: 2.3.1 -->
 
-        <accumulo.version>1.6.4</accumulo.version> <!-- Newest: 1.7.0 -->
+        <accumulo.version>1.9.2</accumulo.version> <!-- Newest: 1.7.0 -->
         <hadoop.version>2.5.0</hadoop.version> <!-- Newest: 2.7.1 -->
         
         <zookeeper.version>3.4.6</zookeeper.version>
@@ -125,7 +125,7 @@ under the License.
         <fluo.version>1.0.0-incubating</fluo.version>
 
         <plexus.version>3.0.8</plexus.version>
-        <thrift.version>0.9.1</thrift.version>
+        <thrift.version>0.9.3</thrift.version>
         <commons.cli.version>1.2</commons.cli.version>
         <jcommander.version>1.60</jcommander.version> <!--  geowave declares a 1.48 dependency and does not support a version higher than 1.60 -->
         <twitter4jstream.version>4.0.1</twitter4jstream.version>
