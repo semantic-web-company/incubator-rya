@@ -21,37 +21,43 @@ package org.apache.rya.mongodb;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.rya.test.mongo.MongoITBase;
 import org.bson.Document;
+import org.junit.Before;
 
 import com.mongodb.DBCollection;
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 
 /**
  * A base class that may be used when implementing Mongo DB tests that use the
- * JUnit framework to talk to an instance of Rya. The configuration file, which contains
- * state information, is protected so test classes may access it directly.
+ * JUnit framework.
  */
-public class MongoRyaITBase extends MongoITBase {
+public class MongoITBase {
 
+    private MongoClient mongoClient = null;
     protected StatefulMongoDBRdfConfiguration conf;
 
-    @Override
-    protected void beforeTest() throws Exception {
+    @Before
+    public void setupTest() throws Exception {
         // Setup the configuration that will be used within the test.
         final MongoDBRdfConfiguration conf = new MongoDBRdfConfiguration( new Configuration() );
         conf.setBoolean("sc.useMongo", true);
         conf.setTablePrefix("test_");
-        conf.setMongoDBName(conf.getRyaInstanceName());
-        conf.setMongoHostname( super.getMongoHostname() );
-        conf.setMongoPort("" + super.getMongoPort());
+        conf.setMongoHostname(EmbeddedMongoSingleton.getMongodConfig().net().getServerAddress().getHostAddress());
+        conf.setMongoPort(Integer.toString(EmbeddedMongoSingleton.getMongodConfig().net().getPort()));
 
         // Let tests update the configuration.
         updateConfiguration(conf);
 
         // Create the stateful configuration object.
+        mongoClient = EmbeddedMongoSingleton.getNewMongoClient();
         final List<MongoSecondaryIndex> indexers = conf.getInstances("ac.additional.indexers", MongoSecondaryIndex.class);
-        this.conf = new StatefulMongoDBRdfConfiguration(conf, getMongoClient(), indexers);
+        this.conf = new StatefulMongoDBRdfConfiguration(conf, mongoClient, indexers);
+
+        // Remove any DBs that were created by previous tests.
+        for(final String dbName : mongoClient.listDatabaseNames()) {
+            mongoClient.dropDatabase(dbName);
+        }
     }
 
     /**
@@ -65,16 +71,23 @@ public class MongoRyaITBase extends MongoITBase {
     }
 
     /**
+     * @return A {@link MongoClient} that is connected to the embedded instance of Mongo DB.
+     */
+    public MongoClient getMongoClient() {
+        return mongoClient;
+    }
+
+    /**
      * @return The Rya triples {@link MongoCollection}.
      */
     public MongoCollection<Document> getRyaCollection() {
-        return getMongoClient().getDatabase(conf.getMongoDBName()).getCollection(conf.getTriplesCollectionName());
+        return mongoClient.getDatabase(conf.getRyaInstanceName()).getCollection(conf.getTriplesCollectionName());
     }
 
     /**
      * @return The Rya triples {@link DBCollection}.
      */
     public DBCollection getRyaDbCollection() {
-        return getMongoClient().getDB(conf.getMongoDBName()).getCollection(conf.getTriplesCollectionName());
+        return mongoClient.getDB(conf.getRyaInstanceName()).getCollection(conf.getTriplesCollectionName());
     }
 }
