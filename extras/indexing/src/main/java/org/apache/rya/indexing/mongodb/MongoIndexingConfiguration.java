@@ -279,6 +279,8 @@ public class MongoIndexingConfiguration extends MongoDBRdfConfiguration {
                                 .getProperty(AbstractMongoDBRdfConfigurationBuilder.USE_DISPLAY_QUERY_PLAN, "true")))//
                         .setMongoUser(props.getProperty(AbstractMongoDBRdfConfigurationBuilder.MONGO_USER)) //
                         .setMongoPassword(props.getProperty(AbstractMongoDBRdfConfigurationBuilder.MONGO_PASSWORD))//
+                        .setMongoCollectionPrefix(props
+                                .getProperty(AbstractMongoDBRdfConfigurationBuilder.MONGO_COLLECTION_PREFIX, "rya_"))//
                         .setMongoDBName(
                                 props.getProperty(AbstractMongoDBRdfConfigurationBuilder.MONGO_DB_NAME, "rya_triples"))//
                         .setMongoHost(props.getProperty(AbstractMongoDBRdfConfigurationBuilder.MONGO_HOST, "localhost"))//
@@ -310,7 +312,7 @@ public class MongoIndexingConfiguration extends MongoDBRdfConfiguration {
          * @return MongoIndexingConfigBuilder for chaining method invocations
          */
         public MongoDBIndexingConfigBuilder setUseMongoFreetextIndex(final boolean useFreeText) {
-            useFreetext = useFreeText;
+            this.useFreetext = useFreeText;
             return this;
         }
 
@@ -353,7 +355,7 @@ public class MongoIndexingConfiguration extends MongoDBRdfConfiguration {
          * @return MongoIndexingConfigBuilder for chaining method invocations
          */
         public MongoDBIndexingConfigBuilder setMongoFreeTextPredicates(final String... predicates) {
-            freetextPredicates = predicates;
+            this.freetextPredicates = predicates;
             return this;
         }
 
@@ -365,7 +367,7 @@ public class MongoIndexingConfiguration extends MongoDBRdfConfiguration {
          * @return MongoIndexingConfigBuilder for chaining method invocations
          */
         public MongoDBIndexingConfigBuilder setMongoTemporalPredicates(final String... predicates) {
-            temporalPredicates = predicates;
+            this.temporalPredicates = predicates;
             return this;
         }
 

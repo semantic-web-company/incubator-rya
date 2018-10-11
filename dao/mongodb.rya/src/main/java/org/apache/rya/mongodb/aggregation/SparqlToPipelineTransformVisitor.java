@@ -94,7 +94,7 @@ public class SparqlToPipelineTransformVisitor extends AbstractQueryModelVisitor<
     public SparqlToPipelineTransformVisitor(StatefulMongoDBRdfConfiguration conf) {
         Preconditions.checkNotNull(conf);
         MongoClient mongo = conf.getMongoClient();
-        MongoDatabase db = mongo.getDatabase(conf.getRyaInstanceName());
+        MongoDatabase db = mongo.getDatabase(conf.getMongoDBName());
         this.inputCollection = db.getCollection(conf.getTriplesCollectionName());
     }
 

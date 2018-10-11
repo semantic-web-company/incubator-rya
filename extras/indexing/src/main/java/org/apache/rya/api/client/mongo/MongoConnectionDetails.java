@@ -78,7 +78,7 @@ public class MongoConnectionDetails {
       * @return The username that was used to establish the connection when performing administrative operations.
       */
      public Optional<String> getUsername() {
-         return username;
+         return this.username;
      }
 
      /**
@@ -102,7 +102,8 @@ public class MongoConnectionDetails {
         conf.setBoolean(ConfigUtils.USE_MONGO, true);
         conf.setMongoHostname(hostname);
         conf.setMongoPort("" + port);
-        conf.setRyaInstanceName(ryaInstanceName);
+        conf.setMongoDBName(ryaInstanceName);
+
         if(username.isPresent()) {
             conf.setMongoUser(username.get());
         }

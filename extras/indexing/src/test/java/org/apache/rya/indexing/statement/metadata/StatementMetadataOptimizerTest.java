@@ -135,7 +135,7 @@ public class StatementMetadataOptimizerTest {
             mConf.setBoolean("sc.useMongo", true);
             mConf.setMongoHostname("localhost");
             mConf.setMongoPort("27017");
-            mConf.setRyaInstanceName("rya_");
+            mConf.setMongoDBName("rya_");
             conf = mConf;
         } else {
             conf = new AccumuloRdfConfiguration();

@@ -151,7 +151,7 @@ public class StatementMetadataExternalSetProviderTest {
             conf.setBoolean("sc.useMongo", true);
             conf.setMongoHostname("localhost");
             conf.setMongoPort("27017");
-            conf.setRyaInstanceName("rya_");
+            conf.setMongoDBName("rya_");
             return conf;
         } else {
 

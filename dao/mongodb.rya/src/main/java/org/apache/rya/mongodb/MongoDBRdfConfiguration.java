@@ -35,16 +35,18 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * A {@link RdfCloudTripleStoreConfiguration} that configures how Rya connects to a MongoDB Rya triple store.
  */
 public class MongoDBRdfConfiguration extends RdfCloudTripleStoreConfiguration {
-    public static final String RYA_TRIPLES_COLLECTION = "rya_triples";
 
     // MongoDB Server connection values.
     public static final String MONGO_HOSTNAME = "mongo.db.instance";
     public static final String MONGO_PORT = "mongo.db.port";
 
     // MongoDB Database values.
-    public static final String RYA_INSTANCE_NAME = "mongo.db.name";
+    public static final String MONGO_DB_NAME = "mongo.db.name";
     public static final String MONGO_USER = "mongo.db.user";
     public static final String MONGO_USER_PASSWORD = "mongo.db.userpassword";
+
+    // Rya Instance values.
+    public static final String MONGO_COLLECTION_PREFIX = "mongo.db.collectionprefix";
 
     // Rya Sail configuration values.
     public static final String USE_MOCK_MONGO = ".useMockInstance";
@@ -103,7 +105,7 @@ public class MongoDBRdfConfiguration extends RdfCloudTripleStoreConfiguration {
      * @param useMock - {@code true} to use an embedded Mongo DB instance; {@code false} to connect to a real server.
      */
     public void setUseMock(final boolean useMock) {
-        setBoolean(USE_MOCK_MONGO, useMock);
+        this.setBoolean(USE_MOCK_MONGO, useMock);
     }
 
     /**
@@ -147,6 +149,21 @@ public class MongoDBRdfConfiguration extends RdfCloudTripleStoreConfiguration {
     }
 
     /**
+     * @return The name of the MongoDB Database to connect to. (default: rya)
+     */
+    public String getMongoDBName() {
+        return get(MONGO_DB_NAME, "rya");
+    }
+
+    /**
+     * @param database - The name of the MongoDb Database to connect to.
+     */
+    public void setMongoDBName(final String database) {
+        requireNonNull(database);
+        set(MONGO_DB_NAME, database);
+    }
+
+    /**
      * @param user - The user used to connect to the MongoDB Database that hosts the Rya Instance. (not null)
      */
     public void setMongoUser(final String user) {
@@ -180,7 +197,7 @@ public class MongoDBRdfConfiguration extends RdfCloudTripleStoreConfiguration {
      * @return The name of the Rya instance to connect to. (default: rya)
      */
     public String getRyaInstanceName() {
-        return get(RYA_INSTANCE_NAME, "rya");
+        return get(MONGO_COLLECTION_PREFIX, "rya");
     }
 
     /**
@@ -188,14 +205,14 @@ public class MongoDBRdfConfiguration extends RdfCloudTripleStoreConfiguration {
      */
     public void setRyaInstanceName(final String name) {
         requireNonNull(name);
-        set(RYA_INSTANCE_NAME, name);
+        set(MONGO_COLLECTION_PREFIX, name);
     }
 
     /**
-     * @return The name of the MongoDB Collection that contains Rya statements. (rya_triples)
+     * @return The name of the MongoDB Collection that contains Rya statements. (default: rya_triples)
      */
     public String getTriplesCollectionName() {
-        return RYA_TRIPLES_COLLECTION;
+        return getRyaInstanceName() + "_triples";
     }
 
     /**

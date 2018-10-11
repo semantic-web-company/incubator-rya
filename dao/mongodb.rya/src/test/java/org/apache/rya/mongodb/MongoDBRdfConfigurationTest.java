@@ -33,6 +33,7 @@ public class MongoDBRdfConfigurationTest {
 
     @Test
     public void testBuilder() {
+        final String prefix = "prefix_";
         final String auth = "U,V,W";
         final String visibility = "U,W";
         final String user = "user";
@@ -41,12 +42,12 @@ public class MongoDBRdfConfigurationTest {
         final boolean useInference = true;
         final boolean displayPlan = false;
 
-        new MongoDBRdfConfiguration();
-        final MongoDBRdfConfiguration conf = MongoDBRdfConfiguration.getBuilder()
+        final MongoDBRdfConfiguration conf = new MongoDBRdfConfiguration().getBuilder()
                 .setVisibilities(visibility)
                 .setUseInference(useInference)
                 .setDisplayQueryPlan(displayPlan)
                 .setUseMockMongo(useMock)
+                .setMongoCollectionPrefix(prefix)
                 .setMongoDBName("dbname")
                 .setMongoHost("host")
                 .setMongoPort("1000")
@@ -54,6 +55,7 @@ public class MongoDBRdfConfigurationTest {
                 .setMongoUser(user)
                 .setMongoPassword(password).build();
 
+        assertEquals(conf.getTablePrefix(), prefix);
         assertTrue(Arrays.equals(conf.getAuths(), new String[] { "U", "V", "W" }));
         assertEquals(conf.getCv(), visibility);
         assertEquals(conf.isInfer(), useInference);
@@ -61,7 +63,8 @@ public class MongoDBRdfConfigurationTest {
         assertEquals(conf.getMongoHostname(), "host");
         assertEquals(conf.getBoolean(".useMockInstance", false), useMock);
         assertEquals(conf.getMongoPort(), "1000");
-        assertEquals(conf.getRyaInstanceName(), "dbname");
+        assertEquals(conf.getMongoDBName(), "dbname");
+        assertEquals(conf.getRyaInstanceName(), "prefix_");
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER), user);
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER_PASSWORD), password);
 
@@ -69,6 +72,7 @@ public class MongoDBRdfConfigurationTest {
 
     @Test
     public void testBuilderFromProperties() throws FileNotFoundException, IOException {
+        final String prefix = "prefix_";
         final String auth = "U";
         final String visibility = "U";
         final String user = "user";
@@ -82,6 +86,7 @@ public class MongoDBRdfConfigurationTest {
 
         final MongoDBRdfConfiguration conf = MongoDBRdfConfiguration.fromProperties(props);
 
+        assertEquals(conf.getTablePrefix(), prefix);
         assertTrue(Arrays.equals(conf.getAuths(), new String[] { auth }));
         assertEquals(conf.getCv(), visibility);
         assertEquals(conf.isInfer(), useInference);
@@ -89,7 +94,8 @@ public class MongoDBRdfConfigurationTest {
         assertEquals(conf.getMongoHostname(), "host");
         assertEquals(conf.getBoolean(".useMockInstance", false), useMock);
         assertEquals(conf.getMongoPort(), "1000");
-        assertEquals(conf.getRyaInstanceName(), "dbname");
+        assertEquals(conf.getMongoDBName(), "dbname");
+        assertEquals(conf.getRyaInstanceName(), "prefix_");
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER), user);
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER_PASSWORD), password);
     }

@@ -35,20 +35,21 @@ public class MongoIndexingConfigurationTest {
 
     @Test
     public void testBuilder() {
-        final String prefix = "prefix_";
-        final String auth = "U,V,W";
-        final String visibility = "U,W";
-        final String user = "user";
-        final String password = "password";
-        final boolean useMock = true;
-        final boolean useInference = true;
-        final boolean displayPlan = false;
+        String prefix = "prefix_";
+        String auth = "U,V,W";
+        String visibility = "U,W";
+        String user = "user";
+        String password = "password";
+        boolean useMock = true;
+        boolean useInference = true;
+        boolean displayPlan = false;
 
-        final MongoIndexingConfiguration conf = MongoIndexingConfiguration.builder()
+        MongoIndexingConfiguration conf = MongoIndexingConfiguration.builder()
                 .setVisibilities(visibility)
                 .setUseInference(useInference)
                 .setDisplayQueryPlan(displayPlan)
                 .setUseMockMongo(useMock)
+                .setMongoCollectionPrefix(prefix)
                 .setMongoDBName("dbname")
                 .setMongoHost("host")
                 .setMongoPort("1000")
@@ -62,6 +63,7 @@ public class MongoIndexingConfigurationTest {
                 .setMongoTemporalPredicates("http://pred3", "http://pred4")
                 .build();
 
+        assertEquals(conf.getTablePrefix(), prefix);
         assertTrue(Arrays.equals(conf.getAuths(), new String[] { "U", "V", "W" }));
         assertEquals(conf.getCv(), visibility);
         assertEquals(conf.isInfer(), useInference);
@@ -69,7 +71,8 @@ public class MongoIndexingConfigurationTest {
         assertEquals(conf.getMongoHostname(), "host");
         assertEquals(conf.getBoolean(".useMockInstance", false), useMock);
         assertEquals(conf.getMongoPort(), "1000");
-        assertEquals(conf.getRyaInstanceName(), "dbname");
+        assertEquals(conf.getMongoDBName(), "dbname");
+        assertEquals(conf.getRyaInstanceName(), "prefix_");
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER), user);
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER_PASSWORD), password);
         assertTrue(
@@ -81,19 +84,21 @@ public class MongoIndexingConfigurationTest {
 
     @Test
     public void testBuilderFromProperties() throws FileNotFoundException, IOException {
-        final String auth = "U";
-        final String visibility = "U";
-        final String user = "user";
-        final String password = "password";
-        final boolean useMock = true;
-        final boolean useInference = true;
-        final boolean displayPlan = false;
+        String prefix = "prefix_";
+        String auth = "U";
+        String visibility = "U";
+        String user = "user";
+        String password = "password";
+        boolean useMock = true;
+        boolean useInference = true;
+        boolean displayPlan = false;
 
-        final Properties props = new Properties();
+        Properties props = new Properties();
         props.load(new FileInputStream("src/test/resources/mongo_rya_indexing.properties"));
 
-        final MongoIndexingConfiguration conf = MongoIndexingConfiguration.fromProperties(props);
+        MongoIndexingConfiguration conf = MongoIndexingConfiguration.fromProperties(props);
 
+        assertEquals(conf.getTablePrefix(), prefix);
         assertTrue(Arrays.equals(conf.getAuths(), new String[] { auth }));
         assertEquals(conf.getCv(), visibility);
         assertEquals(conf.isInfer(), useInference);
@@ -101,7 +106,8 @@ public class MongoIndexingConfigurationTest {
         assertEquals(conf.getMongoHostname(), "host");
         assertEquals(conf.getBoolean(".useMockInstance", false), useMock);
         assertEquals(conf.getMongoPort(), "1000");
-        assertEquals(conf.getRyaInstanceName(), "dbname");
+        assertEquals(conf.getMongoDBName(), "dbname");
+        assertEquals(conf.getRyaInstanceName(), "prefix_");
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER), user);
         assertEquals(conf.get(MongoDBRdfConfiguration.MONGO_USER_PASSWORD), password);
         assertTrue(
