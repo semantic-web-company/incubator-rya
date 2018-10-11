@@ -18,12 +18,8 @@
  */
 package org.apache.rya.mongodb.iter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.log4j.Logger;
@@ -152,7 +148,7 @@ public class RyaStatementBindingSetCursorIterator implements CloseableIteration<
         } else if (match.size() == 1) {
             pipeline.add(new Document("$match", match.get(0)));
         } else {
-            batchQueryResultsIterator = Iterators.emptyIterator();
+            batchQueryResultsIterator = Collections.emptyIterator();
             return;
         }
 
