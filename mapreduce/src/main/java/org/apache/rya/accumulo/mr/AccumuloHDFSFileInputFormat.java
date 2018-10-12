@@ -19,12 +19,12 @@ package org.apache.rya.accumulo.mr;
  * under the License.
  */
 
+import static com.google.common.base.Preconditions.checkArgument;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.Scanner;
@@ -37,7 +37,6 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.file.FileSKVIterator;
 import org.apache.accumulo.core.file.rfile.RFileOperations;
 import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.util.ArgumentChecker;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FileStatus;
@@ -68,8 +67,15 @@ public class AccumuloHDFSFileInputFormat extends FileInputFormat<Key, Value> {
         String user = MRUtils.AccumuloProps.getUsername(jobContext);
         AuthenticationToken password = MRUtils.AccumuloProps.getPassword(jobContext);
         String table = MRUtils.AccumuloProps.getTablename(jobContext);
+        
+        // SWC-TODO: CHECK
+        checkArgument(instance != null, "instance is null");
+        checkArgument(table != null, "table is null");
+
+        /*
         ArgumentChecker.notNull(instance);
         ArgumentChecker.notNull(table);
+        */
 
         //find the files necessary
         try {
@@ -112,9 +118,19 @@ public class AccumuloHDFSFileInputFormat extends FileInputFormat<Key, Value> {
                 Path file = split.getPath();
                 FileSystem fs = file.getFileSystem(job);
                 Instance instance = MRUtils.AccumuloProps.getInstance(taskAttemptContext);
+                // SWC-TODO: CHECK
+                fileSKVIterator = RFileOperations
+                                    .getInstance()
+                                    .newReaderBuilder()
+                                    .forFile(file.toString(), fs, job)
+                                    .withTableConfiguration(instance.getConfiguration())
+                                    .seekToBeginning(false)
+                                    .build();
 
+                /*
                 fileSKVIterator = RFileOperations.getInstance().openReader(file.toString(), ALLRANGE,
                         new HashSet<ByteSequence>(), false, fs, job, instance.getConfiguration());
+                */
             }
 
             @Override
