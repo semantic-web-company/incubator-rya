@@ -346,6 +346,20 @@ public class RdfCloudTripleStoreTest extends TestCase {
         assertEquals(1, tupleHandler.getCount());
     }
 
+    public void testNullBindings() throws Exception {
+        String query = "PREFIX ns:<" + NAMESPACE + ">\n" +
+                "select * where {\n" +
+                "ns:" + descendant + " ns:derivedFrom ?dr.\n" +
+                "OPTIONAL {?s <http://invalid> ?o} BIND(?def AS ?entity ) ." +
+                "OPTIONAL {?s <http://invalid2> ?o} BIND(COALESCE(?imageuV) AS ?entityImage ) ." +
+                "}\n";
+
+        TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, query);
+        CountTupleHandler tupleHandler = new CountTupleHandler();
+        tupleQuery.evaluate(tupleHandler);
+        assertEquals(1, tupleHandler.getCount());
+    }
+
     public void testEventsForUri() throws Exception {
         String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                 "PREFIX ns:<" + NAMESPACE + ">\n" +

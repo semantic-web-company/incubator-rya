@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.rya.api.RdfCloudTripleStoreConfiguration;
@@ -65,6 +66,7 @@ import org.eclipse.rdf4j.query.algebra.evaluation.iterator.FilterIterator;
 import org.eclipse.rdf4j.query.algebra.evaluation.iterator.JoinIterator;
 
 import com.google.common.collect.Lists;
+import org.eclipse.rdf4j.query.impl.MapBindingSet;
 
 /**
  */
@@ -81,7 +83,7 @@ public class ParallelEvaluationStrategyImpl extends StrictEvaluationStrategy {
                                           Dataset dataset, RdfCloudTripleStoreConfiguration conf) {
         super(tripleSource, dataset, null);
         Integer nthreads = conf.getNumThreads();
-        this.numOfThreads = (nthreads != null) ? nthreads : this.numOfThreads;
+        this.numOfThreads = 1;
         Boolean val = conf.isPerformant();
         this.performant = (val != null) ? val : this.performant;
         val = conf.isDisplayQueryPlan();
@@ -234,6 +236,26 @@ public class ParallelEvaluationStrategyImpl extends StrictEvaluationStrategy {
         };
     }
 
+    private BindingSet SanitizeBindingSetIfNecessary(BindingSet bindings)
+    {
+        BindingSet sanitizedBindingSet = bindings;
+        Set<String> bindingNames = bindings.getBindingNames();
+
+        List<String> validBindingsNames = bindingNames.stream()
+                .filter(bindingName -> bindings.getBinding(bindingName) != null)
+                .collect(Collectors.toList());
+
+        if (bindingNames.size() > validBindingsNames.size())
+        {
+            MapBindingSet newBindings = new MapBindingSet();
+            validBindingsNames.forEach(validBindingName -> newBindings.addBinding(bindings.getBinding(validBindingName)));
+
+            sanitizedBindingSet = newBindings;
+        }
+
+        return sanitizedBindingSet;
+    }
+
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(TupleExpr expr, BindingSet bindings) throws QueryEvaluationException {
         if (expr instanceof QueryRoot) {
@@ -249,6 +271,8 @@ public class ParallelEvaluationStrategyImpl extends StrictEvaluationStrategy {
                 logger.info("================= End Rya Query =================");
             }
         }
+
+        bindings = SanitizeBindingSetIfNecessary(bindings);
         return super.evaluate(expr, bindings);
     }
 
