@@ -139,6 +139,36 @@ under the License.
 				<configuration>
 					<!-- Use the web.xml that was filtered in the resources section. -->
 					<webXml>${project.build.directory}/web.xml</webXml>
+	<webResources>
+          <resource>
+            <directory>src/main/resources/i18n</directory>
+            <includes>
+              <include>**/*</include>
+            </includes>
+            <targetPath>WEB-INF/classes/i18n</targetPath>
+          </resource>
+          <resource>
+            <directory>src/main/resources/META-INF/services</directory>
+            <includes>
+              <include>**/*</include>
+            </includes>
+            <targetPath>WEB-INF/classes/META-INF/services</targetPath>
+          </resource>
+          <resource>
+            <directory>src/main/resources/</directory>
+            <includes>
+              <include>sparql-service-description.ttl</include>
+            </includes>
+            <targetPath>WEB-INF/classes</targetPath>
+          </resource>
+          <resource>
+            <directory>src/main/webapp/resources/</directory>
+            <includes>
+              <include>**/*</include>
+            </includes>
+            <targetPath>/resources</targetPath>
+          </resource>
+        </webResources>
 				</configuration>
 			</plugin>
 			<plugin>
