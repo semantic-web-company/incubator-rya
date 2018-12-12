@@ -13,7 +13,7 @@ import org.apache.cloud.rdf.sparql.templating.BooleanQueryMAVWriterFactory;
 import org.apache.cloud.rdf.sparql.templating.GraphQueryMAVWriterFactory;
 import org.apache.cloud.rdf.sparql.templating.MAVWriterFactory;
 import org.apache.cloud.rdf.sparql.templating.TupleQueryMAVWriterFactory;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.QueryLanguage;
